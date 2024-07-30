@@ -1,6 +1,11 @@
 import socket
 import sys
+import threading
 
+
+def recv_msg(sock):
+    while (msg := sock.recv(2048)):
+        print(msg.decode())
 
 def client(host, port):
     
@@ -8,6 +13,8 @@ def client(host, port):
     server_address = (host, int(port))
 
     sock.connect(server_address)
+
+    threading.Thread(target=recv_msg, args=(sock,), daemon=True).start()
 
     try:
 
