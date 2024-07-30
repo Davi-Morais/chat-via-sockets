@@ -5,18 +5,31 @@ import sys
 
 class Server:
 
-    def handle_client(self, connection, client_address):
-        print(f'connection from {client_address}')
+    def __init__(self):
+        self.connections_alive = []
+
+
+    def broadcast(self, sender, address, msg):
+        for connection in self.connections_alive:
+            try:
+                if connection != sender:
+                    connection.sendall(msg)
+            except Exception as e:
+                print(e)
+
+
+    def handle_client(self, connection, address):
+        print(f'connection from {address}')
 
         try:
-            while (data := connection.recv(2048)):
-                msg = data.decode('utf-8')
-                print(f"{msg}")
-                
+            while (msg := connection.recv(2048)):
+                self.broadcast(connection, address, msg)               
         
         finally:
+            self.connections_alive.remove(connection)
+            print(len(self.connections_alive))
             connection.close()
-            print(f"Connection with {client_address} closed!")
+            print(f"Connection with {address} closed!")
 
 
     def start(self, host, port):
@@ -33,9 +46,11 @@ class Server:
 
         print('waiting connections...')
         while True:
-            connection, client_address = sock.accept()
+            connection, address = sock.accept()
 
-            threading.Thread(target=self.handle_client, args=(connection, client_address), daemon=True).start()
+            self.connections_alive.append(connection)
+
+            threading.Thread(target=self.handle_client, args=(connection, address), daemon=True).start()
 
 
 if __name__ == "__main__":
