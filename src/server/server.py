@@ -1,11 +1,12 @@
 import socket
 import threading
-import sys
 
 
 class Server:
 
-    def __init__(self):
+    def __init__(self, host, port):
+        self.host = host
+        self.port = int(port)
         self.connections_alive = []
 
 
@@ -32,10 +33,10 @@ class Server:
             print(f"Connection with {address} closed!")
 
 
-    def start(self, host, port):
+    def start(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        address = (host, int(port))
+        address = (self.host, self.port)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(address)
 
@@ -51,13 +52,3 @@ class Server:
             self.connections_alive.append(connection)
 
             threading.Thread(target=self.handle_client, args=(connection, address), daemon=True).start()
-
-
-if __name__ == "__main__":
-    print(sys.argv)
-    if len(sys.argv) != 3:
-        print("Usage: server.py host port")
-        exit(1)
-    else:
-        server = Server()
-        server.start(sys.argv[1], sys.argv[2])
