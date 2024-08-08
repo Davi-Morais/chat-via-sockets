@@ -1,5 +1,4 @@
 import socket
-import threading
 from handleClients import HandleClients
 
 
@@ -27,5 +26,4 @@ class Server:
         while True:
             connection, address = sock.accept()
 
-            ct = threading.Thread(target=handleClients.add, args=(connection, address), daemon=True)
-            ct.start()
+            handleClients.add(connection, address)

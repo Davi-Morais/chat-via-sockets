@@ -1,3 +1,5 @@
+import threading
+
 
 class Client():
     def __init__(self, connection, address) -> None:
@@ -17,17 +19,22 @@ class HandleClients():
         new_client = Client(connection, address)
         self.listClients.append(new_client)
 
+        ct = threading.Thread(target=self.handle, args=(new_client,), daemon=True)
+        ct.start()
+        
         print(f'connection from {new_client.address}')
 
+
+    def handle(self, client: Client):
         try:
-            while (msg := new_client.connection.recv(2048)):
-                self.broadcast(new_client, msg)               
+            while (msg := client.connection.recv(2048)):
+                self.broadcast(client, msg)               
         
         finally:
-            self.listClients.remove(new_client)
+            self.listClients.remove(client)
             print(len(self.listClients))
-            new_client.connection.close()
-            print(f"Connection with {new_client.address} closed!")
+            client.connection.close()
+            print(f"Connection with {client.address} closed!")
 
 
     def broadcast(self, sender, msg) -> None:
