@@ -31,6 +31,8 @@ class HandleClients():
             if client.nickname:
                 self.listClients.append(client)
 
+                client.connection.sendall(self.users_online().encode())
+
                 while (msg := client.connection.recv(2048)):
                     self.broadcast(client, msg)               
         
@@ -51,16 +53,15 @@ class HandleClients():
             if command[0] == '!nick' and len(command) == 2:
                 client.nickname = command[1]
 
-                number_of_users = len(self.listClients)
-                nickname_of_all_users = self.getNickUsers()
-
-                nicksnames_msg = f"!users {number_of_users} {nickname_of_all_users}"
-
-                client.connection.sendall(nicksnames_msg.encode())
-
         except Exception as e:
             print(e)
             
+
+    def users_online(self):
+        number_of_users = len(self.listClients)
+        nickname_of_all_users = self.getNickUsers()
+
+        return f"!users {number_of_users} {nickname_of_all_users}"
 
 
     def getNickUsers(self) -> str:
