@@ -33,9 +33,13 @@ class HandleClients():
 
                 client.connection.sendall(self.users_online().encode())
 
-                while (msg := client.connection.recv(2048)):
-                    self.broadcast(client, msg)               
+                while (data := client.connection.recv(2048)):
+
+                    command = data.decode(encoding='UTF-8').split(' ', 1)
         
+                    if command[0] == '!sendmsg':
+                        self.broadcast(client, command[1])
+                    
         finally:
             if client in self.listClients:
                 self.listClients.remove(client)
@@ -70,9 +74,12 @@ class HandleClients():
 
 
     def broadcast(self, sender, msg) -> None:
+
+        b_msg = f'!msg {sender.nickname} {msg}'.encode()
+
         for client in self.listClients:
             try:
                 if client is not sender:
-                    client.connection.sendall(msg)
+                    client.connection.sendall(b_msg)
             except Exception as e:
                 print(e)
