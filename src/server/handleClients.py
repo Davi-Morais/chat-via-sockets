@@ -45,11 +45,12 @@ class HandleClients():
                     elif command[0] == '!poke':
                         self.poke(client, command[1])
                     elif command[0] == '!left':
-                        self.left(client)
+                        client.connection.shutdown(socket.SHUT_RDWR)
                     
         finally:
             if client in self.listClients:
-                self.listClients.remove(client)
+                self.listClients.remove(client) 
+            self.left(client)
             print(len(self.listClients))
             client.connection.close()
             print(f"Connection with {client.address} closed!")
@@ -121,8 +122,6 @@ class HandleClients():
     def left(self, sender:Client):
         b_msg = f'!left {sender.nickname}'.encode()
         
-        sender.connection.shutdown(socket.SHUT_RDWR)
-
         for c in self.listClients:
             if c is not sender:
                 c.connection.sendall(b_msg)
