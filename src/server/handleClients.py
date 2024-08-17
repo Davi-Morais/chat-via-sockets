@@ -41,6 +41,8 @@ class HandleClients():
                         self.broadcast(client, command[1])
                     elif command[0] == '!changenickname':
                         self.changenickname(client, command[1])
+                    elif command[0] == '!poke':
+                        self.poke(client, command[1])
                     
         finally:
             if client in self.listClients:
@@ -67,7 +69,7 @@ class HandleClients():
         old_nickname = client.nickname
         client.nickname = new_nickname
         
-        b_msg = f'changenickname {old_nickname} {client.nickname}'.encode()
+        b_msg = f'!changenickname {old_nickname} {client.nickname}'.encode()
 
         for c in self.listClients:
             c.connection.sendall(b_msg)
@@ -83,6 +85,22 @@ class HandleClients():
     def getNickUsers(self) -> str:
         nicknames = [user.nickname for user in self.listClients]
         return " ".join(nicknames)
+
+    
+    def get_user_by_nickname(self, nickname: str):
+        for c in self.listClients:
+            if c.nickname == nickname:
+                return c
+
+
+    def poke(self, client:Client, poked_nickname):
+        poked_user = self.get_user_by_nickname(poked_nickname)
+
+        if poked_user and (poked_user.nickname == poked_nickname):
+            b_msg = f'!poke {client.nickname} {poked_user.nickname}'.encode()
+
+            for c in self.listClients:
+                c.connection.sendall(b_msg)
 
 
     def broadcast(self, sender, msg) -> None:
