@@ -39,6 +39,8 @@ class HandleClients():
         
                     if command[0] == '!sendmsg':
                         self.broadcast(client, command[1])
+                    elif command[0] == '!changenickname':
+                        self.changenickname(client, command[1])
                     
         finally:
             if client in self.listClients:
@@ -60,6 +62,16 @@ class HandleClients():
         except Exception as e:
             print(e)
             
+
+    def changenickname(self, client: Client, new_nickname):
+        old_nickname = client.nickname
+        client.nickname = new_nickname
+        
+        b_msg = f'changenickname {old_nickname} {client.nickname}'.encode()
+
+        for c in self.listClients:
+            c.connection.sendall(b_msg)
+
 
     def users_online(self):
         number_of_users = len(self.listClients)
