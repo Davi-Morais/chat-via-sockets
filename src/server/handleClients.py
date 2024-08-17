@@ -1,4 +1,5 @@
 import threading
+import socket
 
 
 class Client():
@@ -43,6 +44,8 @@ class HandleClients():
                         self.changenickname(client, command[1])
                     elif command[0] == '!poke':
                         self.poke(client, command[1])
+                    elif command[0] == '!left':
+                        self.left(client)
                     
         finally:
             if client in self.listClients:
@@ -113,3 +116,14 @@ class HandleClients():
                     client.connection.sendall(b_msg)
             except Exception as e:
                 print(e)
+
+
+    def left(self, sender:Client):
+        b_msg = f'!left {sender.nickname}'.encode()
+        
+        sender.connection.shutdown(socket.SHUT_RDWR)
+
+        for c in self.listClients:
+            if c is not sender:
+                c.connection.sendall(b_msg)
+
