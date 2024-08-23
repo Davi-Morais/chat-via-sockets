@@ -36,15 +36,16 @@ class HandleClients():
 
                 while (data := client.connection.recv(2048)):
 
-                    command = data.decode(encoding='UTF-8').split(' ', 1)
+                    command = data.decode(encoding='UTF-8')
+                    command = command.strip('\r\n')
         
-                    if command[0] == '!sendmsg':
-                        self.broadcast(client, command[1])
-                    elif command[0] == '!changenickname':
-                        self.changenickname(client, command[1])
-                    elif command[0] == '!poke':
-                        self.poke(client, command[1])
-                    elif command[0] == '!left':
+                    if command.startswith('!sendmsg '):
+                        self.broadcast(client, command[9:])
+                    elif command.startswith('!changenickname '):
+                        self.changenickname(client, command[16:])
+                    elif command.startswith('!poke '):
+                        self.poke(client, command[6:])
+                    elif command.startswith('!left'):
                         client.connection.shutdown(socket.SHUT_RDWR)
                     
         finally:
@@ -60,10 +61,11 @@ class HandleClients():
         try:
             data = client.connection.recv(2048)
 
-            command = data.decode(encoding='UTF-8').split(' ', 1)
+            command = data.decode(encoding='UTF-8')
+            command = command.strip('\r\n')
 
-            if command[0] == '!nick' and len(command) == 2:
-                client.nickname = command[1]
+            if command.startswith('!nick ') and len(command) > 5:
+                client.nickname = command[6:]
 
         except Exception as e:
             print(e)
