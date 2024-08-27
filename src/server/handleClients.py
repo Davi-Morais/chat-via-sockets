@@ -32,7 +32,10 @@ class HandleClients():
             if client.nickname:
                 self.listClients.append(client)
 
-                client.connection.sendall(self.users_online().encode())
+                users_online = self.users_online().encode()
+                for c in self.listClients:
+                    c.connection.sendall(users_online)
+
 
                 while (data := client.connection.recv(2048)):
 
