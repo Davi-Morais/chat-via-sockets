@@ -26,44 +26,48 @@ class Client:
 
     def send_message(self, msg):
         try:
-            if msg.startswith('!nick'):
-                # Handle nickname setting
-                _, nickname = msg.split(' ', 1)
-                self.nickname = nickname
-                self.sock.sendall(msg.encode())
-                self.gui.display_message(f"Nickname set to: {nickname}", sent=True)
-            elif msg.startswith('!sendmsg') and self.nickname:
-                # Sending a message
-                self.sock.sendall(f"!sendmsg {msg[9:]}".encode())
-                self.gui.display_message(f"Sent: {msg[9:]}", sent=True)
+            if not self.nickname and msg:
+                # _, nickname = msg.split(' ', 1)
+                self.nickname = msg
+                self.sock.sendall(f"!nick {msg}".encode())
+                self.gui.display_message(f"é {self.nickname}", sent=True)                
+                
+
+
             elif msg.startswith('!changenickname'):
                 # Change nickname
                 self.sock.sendall(msg.encode())
-                self.gui.display_message(f"Requested nickname change: {msg[17:]}", sent=True)
+                # self.gui.display_message(f"Requested nickname change: {msg[17:]}", sent=True)
             elif msg.startswith('!poke'):
                 # Poke someone
                 self.sock.sendall(msg.encode())
-                self.gui.display_message(f"Requested poke: {msg[6:]}", sent=True)
+                # self.gui.display_message(f"Requested poke: {msg[6:]}", sent=True)
             elif msg == 'exit':
                 # Handle exit
                 self.running = False
                 self.sock.shutdown(socket.SHUT_RDWR)
             else:
-                if not self.nickname and not msg.startswith('!nick'):
-                    self.gui.display_message("Você deve definir um apelido com !nick antes de enviar mensagens.")
-                else:
-                    self.sock.sendall(msg.encode())
-                    self.gui.display_message(msg, sent=True)
+
+                self.sock.sendall(f"!sendmsg {msg}".encode())
+                    # self.gui.display_message(f"Sent: {msg}", sent=True) # Talvez tirar
+                    # self.sock.sendall(msg.encode())
+                    # self.gui.display_message(msg, sent=True)
         except Exception as e:
             print(f"Error sending message: {e}")
 
     def process_message(self, msg):
         if msg.startswith("!users"):
-            self.gui.display_message(f"Usuários Online: {msg[7:]}")
+            command, num_user, users = msg.strip(' ').split(' ', 2)
+            if int(num_user) > 1:
+                self.gui.display_message(f"{num_user} usuários online: {users}")
+            else:
+                self.gui.display_message(f"{num_user} usuário online: {users}")
         elif msg.startswith("!changenickname"):
-            self.gui.display_message(f"Apelido alterado: {msg[17:]}")
+            command, old_name, new_name = msg.strip(' ').split(' ', 2)
+            self.gui.display_message(f"{old_name} agora é {new_name}!")
         elif msg.startswith("!poke"):
-            self.gui.display_message(f"Você foi cutucado por {msg[6:]}")
+            command, user, poked_user = msg.strip(' ').split(' ', 2)
+            self.gui.display_message(f"{user} cutucou {poked_user}")
         elif msg.startswith("!left"):
             self.gui.display_message(f"{msg[6:]} saiu.")
         elif msg.startswith("!msg"):

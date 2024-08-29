@@ -18,7 +18,7 @@ class ClientGUI:
 
     def display_message(self, msg, sent=False, received=False):
         if sent:
-            self.text_area.insert(tk.END, f"Você: {msg}\n")
+            self.text_area.insert(tk.END, f"Você {msg}\n")
         elif received:
             self.text_area.insert(tk.END, f"{msg}\n")
         else:
