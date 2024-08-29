@@ -81,6 +81,7 @@ class Client:
             self.gui.display_message(msg, received=True)
 
     def start(self):
+        self.gui.display_message("Insira seu nick:")
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             server_address = (self.host, self.port)
