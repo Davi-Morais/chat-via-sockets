@@ -40,7 +40,7 @@ class HandleClients():
                 while (data := client.connection.recv(2048)):
 
                     command = data.decode(encoding='UTF-8')
-                    command = command.strip('\r\n')
+                    command = command.strip('\r\n').strip(' ')
         
                     if command.startswith('!sendmsg '):
                         self.broadcast(client, command[9:])
@@ -118,8 +118,8 @@ class HandleClients():
 
         for client in self.listClients:
             try:
-                if client is not sender:
-                    client.connection.sendall(b_msg)
+                # if client is not sender: ###
+                client.connection.sendall(b_msg)
             except Exception as e:
                 print(e)
 
